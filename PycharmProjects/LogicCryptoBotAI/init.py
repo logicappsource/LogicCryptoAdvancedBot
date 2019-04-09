@@ -41,7 +41,7 @@ def arbitrage():
             print(exch1)
             exchange1_info = dir(exch1)
             print("-----------------Exchange:", exch1.id)
-            pprint(exchange1_info)
+            #pprint(exchange1_info)
             print(exch1.symbols) # List all currencies
             time.sleep(5)
 
@@ -56,13 +56,37 @@ def arbitrage():
             # From Coin 1 to Coin 2
             # From Coin 2 to Coin 3
             # From Coin 3 Coin 1
-            arb_list = ['ETH/BTC', 'ETH/LTC', 'BTC/LTC']
+            arb_list = ['ETH/BTC'] #['ETH/BTC', 'ETH/LTC', 'BTC/LTC']
+            # Find 'closed loop' of currency pairs
+            j=0
+            while 1:
+                for sym in symbols:
+                    if j % 2 == 0:
+                        if arb_list[j][0:3] == sym[0:3]: # Comparing top pairs of currencies based on positions
+                            arb_list.append(sym)
+                            j+=1
+                            break
+                    if j % 2 == 1:
+                        if arb_list[j][-3:0] == sym[-3:0]: # back po -> end
+                            arb_list.append(sym)
+                            j+=1
+                            break
+                if arb_list[-1][0:3] == arb_list[0][-3:0]: # break out of while loop
+                    break
+            print('Arbitrage list : after currency comparsion', arb_list)
+            time.sleep(15)
             # Determine Rates for our 3 currency pairs - order book
             i=0
+            exch_rate_list = []
             for sym in arb_list:
-                depth = exch1.fetch_order_book(symbol=sym)
-                pprint(depth)
-                time.sleep(3)
+                if sym in symbols:
+                    depth = exch1.fetch_order_book(symbol=sym)
+                    pprint(depth)
+                    time.sleep(3)
+                    exch_rate_list.append(depth['bids'][0][0])
+                else:
+                    exch_rate_list.append(0)
+            print(exch_rate_list)
     # Compare to determine if Arbitrage oppertunities exists
 
 
