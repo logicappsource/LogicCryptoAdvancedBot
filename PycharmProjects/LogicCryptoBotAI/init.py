@@ -15,43 +15,89 @@ from pprint import pprint
 
 def run():
     # Initialize Function - Set Initial Conditions for Bot
+    arbitrage()
+    time.sleep(20)
     initialize()
     # Diversify function - collect all balances accross exchange, than  diversify them
-    diversify()
+    #diversify()
+    portfolio = 10 # BTC
     # Active Trader - 'Scalping', swing trading ,arbitrage
     while 1:
         ActiveTrader()
 
 
+def arbitrage():
+    # Crate Triangular Function
+    print("Arbitrage function Running")
+    coins = ['BTC', 'LTC', 'ETH'] # Currencies to Arbitrage
+    for exch in ccxt.exchanges:
+        exch1 = getattr(ccxt, exch)()
+        symbols = exch1.symbols
+        if symbols is None:
+            print("\n ----------------------------\nNext Exchange\n--------------------------")
+        elif len(symbols)<15:
+            print("\n-----------------------------\nNeed more Pairs (Next Exchange)\n------------------")
+        else:
+            print(exch1)
+            exchange1_info = dir(exch1)
+            print("-----------------Exchange:", exch1.id)
+            pprint(exchange1_info)
+            print(exch1.symbols) # List all currencies
+            time.sleep(5)
+
+            # Find Currencies Trading pairs to Trade
+            pairs = []
+            for sym in symbols:
+                for symbol in coins:
+                    if symbol in sym:
+                        pairs.append(sym)
+            print(pairs)
+            # From Coin 1 to Coin 2
+            # From  
+
+            for sym in symbols:
+                depth = exch1.fetch_order_book(symbol=sym)
+                pprint(depth)
+                time.sleep(10)
+    # Compare to determine if Arbitrage oppertunities exists
+
+
 def diversify():
-    #    Diversify to do:
+    #    Diversify to do (Diversify will diversify portfolio):
                 # Collect Amounts in Wallets(availible for trading)
-    #           # diversify into pre-described amounts
+    for exch2 in ccxt.exchanges:
+        # Change to incorporate requiring API`s keys & phrases (from ekys Python Script)
+        exch = getattr(ccxt, exch2)()
+        print(exch.fetchBalance())
+    # Diversify into pre-described amounts
                   # 50% btc . 5% each of 8 next-top coins, 10x 1% pf micro caps
     pass
 
 
 def ActiveTrader():
     # Active trader continious Loop of calling trader functions such as scalping &
+            # Arbitrage function
+    # Scalping Function
+    # Swing Trading Function
     # Arbitrage function
     pass
 
 
 def initialize():
-
     # Active trade - Continiuous Loop of calling trader functions such as scalping &
     # arbitrage function
     # get system status
-    #Create List of Crypto Pairs to Watch
+    # Create List of Crypto Pairs to Watch
     all_symbols = []
-    #list_of_symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT','BNBBTC', 'ETHBTC', 'LTCBTC']
+    # list_of_symbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT','BNBBTC', 'ETHBTC', 'LTCBTC']
     micro_cap_coins = ['ICXBNB', 'BRDBNB', 'NAVBNB', 'RCNBNB']
-    #time_horizon = "Short"
-    #Risk = "High"
+    # time_horizon = "Short"
+    # Risk = "High"
     print("\n\n---------------------------------------------------------\n\n")
     print("Logic Crypto Trader Bot Python Script\nCreated 2019 - LogicAppSource")
     print("Quick 'run-through' will be performed to introduce you to the functionality")
     time.sleep(5)
+    i = 0
     try:
              #Get Status of Exchange & Account
         print("\nList fo availible Exchanges for trading: \n \n")
@@ -61,26 +107,31 @@ def initialize():
              #Get Exchange Info for All Listed Exchanges
         for exchange1 in ccxt.exchanges:
             list_of_symbols = []
+            if i>0:
+                break # break out of the statement
             exchange = getattr(ccxt, exchange1)()
             print("\n\nExchange: ", exchange.id)
             print("\nSet Exchange Info (Limits): ", exchange.rateLimit)
             print("\nLoad Market: ", exchange.load_markets)
             symbols = exchange.symbols
-            if __name__ == '__main__':
-                if symbols is None:
-                    print("\nNo Symbols Loaded\n\n")
-                else:
-                    print("------------------\nNumber of Symbols: ", len(symbols))
-                    print("Exchange & Symbols :")
-                    print(exchange.id, "-                   ", symbols)
-                    print("-------------------------------------------")
-                    for sym in symbols:
-                        list_of_symbols.append(sym)
-                        all_symbols.append(sym)
-                    currencies = exchange.currencies
-                    print("------------------------")
-                    print("Currencies:", currencies)
-                    time.sleep(5)
+
+            if symbols is None:
+                print("\nNo Symbols Loaded\n\n")
+            else:
+                print("------------------\nNumber of Symbols: ", len(symbols))
+                print("Exchange & Symbols :")
+                print(exchange.id, "-                   ", symbols)
+                print("-------------------------------------------")
+                for sym in symbols:
+                    list_of_symbols.append(sym)
+                    all_symbols.append(sym)
+                currencies = exchange.currencies
+                rand_sym = random.choice(list_of_symbols)
+                market_depth(rand_sym, exchange) #exchange  == CHANGE
+                visualize_market_depth(sym=rand_sym, exchange=exchange)
+                scalping_orders(exchange, rand_sym)
+                i+=1 # break out of initialize statement
+                time.sleep(4)
 
              # print("\nExchange Info (Limits): ", info)
         # place a test market buy order, to place an actual order use the create_order function
@@ -91,8 +142,6 @@ def initialize():
         # for symbol in list_of_symbols:
         #    market_depth(symbol)
 
-        #for coin in micro_cap_coins:
-        visualize_market_depth(1, 1, list_of_symbols)
 
              # Get recent trades
         # trades = client.get_recent_trades(symbol='BNBBTC')
@@ -125,6 +174,7 @@ def initialize():
             save_historical_data.save_historic_klines_csv(coin, "24 hours ago UTC", "now UTC", Client.KLINE_INTERVAL_15MINUTE)
             save_historical_data.save_historic_klines_csv(coin, "1 month ago UTC", "now UTC", Client.KLINE_INTERVAL_1DAY)
             """
+        print("INITIALIZE SUCCESSFUL")
     except():
         print("\n \n ATTENTION: !VALID CONNECTION WITH LogicCryptoBot \n \n")
         pass
