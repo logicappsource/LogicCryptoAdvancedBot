@@ -45,6 +45,7 @@ def arbitrage():
             print(exch1.symbols) # List all currencies
             time.sleep(5)
 
+
             # Find Currencies Trading pairs to Trade
             pairs = []
             for sym in symbols:
@@ -53,12 +54,15 @@ def arbitrage():
                         pairs.append(sym)
             print(pairs)
             # From Coin 1 to Coin 2
-            # From  
-
-            for sym in symbols:
+            # From Coin 2 to Coin 3
+            # From Coin 3 Coin 1
+            arb_list = ['ETH/BTC', 'ETH/LTC', 'BTC/LTC']
+            # Determine Rates for our 3 currency pairs - order book
+            i=0
+            for sym in arb_list:
                 depth = exch1.fetch_order_book(symbol=sym)
                 pprint(depth)
-                time.sleep(10)
+                time.sleep(3)
     # Compare to determine if Arbitrage oppertunities exists
 
 
@@ -66,11 +70,11 @@ def diversify():
     #    Diversify to do (Diversify will diversify portfolio):
                 # Collect Amounts in Wallets(availible for trading)
     for exch2 in ccxt.exchanges:
-        # Change to incorporate requiring API`s keys & phrases (from ekys Python Script)
+        # Change to incorporate requiring API`s keys & phrases (from Python Script)
         exch = getattr(ccxt, exch2)()
         print(exch.fetchBalance())
     # Diversify into pre-described amounts
-                  # 50% btc . 5% each of 8 next-top coins, 10x 1% pf micro caps
+                  # 50% btc , 5% each of 8 next-top coins, 10x 1% pf micro caps
     pass
 
 
