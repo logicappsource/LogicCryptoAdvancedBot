@@ -1,13 +1,9 @@
-#from binance.client import Client
-#from binance.enums import *
 #import save_historical_data
 import ccxt
 import time
 import matplotlib.pyplot as plt
 import random
 from pprint import pprint
-#from Keys import Key1
-#client = Client(api_key, api_secret)
 #address = client.get_deposit_address(asset='BTC')
 
 
@@ -24,7 +20,7 @@ def run():
         ActiveTrader()
 
 
-def arbitrage(cycle_number=10, cycle_time=20):
+def arbitrage(cycle_number=25, cycle_time=3):
     # Crate Triangular Function
     print("Arbitrage function Running")
     coins = ['BTC', 'LTC', 'ETH'] # Currencies to Arbitrage
@@ -49,7 +45,7 @@ def arbitrage(cycle_number=10, cycle_time=20):
                 for symbol in coins:
                     if symbol in sym:
                         pairs.append(sym)
-            print(pairs)
+            #print(pairs)
             # From Coin 1 to Coin 2 - ETH/BTC - Bid
             # From Coin 2 to Coin 3 - ETH/LTC - Ask
             # From Coin 3 Coin 1 - BTC/LTC - Bid
@@ -60,9 +56,10 @@ def arbitrage(cycle_number=10, cycle_time=20):
                 if j == 1:
                             final = arb_list[0][-3:] + '/' + str(arb_list[1][-3:])
                             print(final)
-                            if final in symbols:
-                                arb_list(final)
+                            #if final in symbols:
+                            arb_list.append(final)
                             break
+                time.sleep(3)
                 for sym in symbols:
                     if j % 2 == 0:
                         if arb_list[j][0:3] == sym[0:3]: # Comparing top pairs of currencies based on positions
@@ -81,8 +78,6 @@ def arbitrage(cycle_number=10, cycle_time=20):
                                 arb_list.append(sym)
                                 j+=1
                                 break
-                #if arb_list[-1][0:3] == arb_list[0][-3:0]: # break out of while loop
-                    #break
                 #time.sleep(.5)
             print('Arbitrage list = Symbols = ', arb_list)
             time.sleep(3)
@@ -105,16 +100,16 @@ def arbitrage(cycle_number=10, cycle_time=20):
                     else:
                         exch_rate_list.append(0)
                         time.sleep(cycle_time)
-                exch_rate_list.append(time.time())
+                exch_rate_list.append(time.time()) # configure to human readable time format
                 print(exch_rate_list)
         # Compare to determine if Arbitrage oppertunities exists
-                print('arbite???????')
                 if exch_rate_list[0] < exch_rate_list[1] / exch_rate_list[2]:
-                    print("Arbitrage Possibility")
+                    print("Arbitrage Possibility -- $$$$$$$$$$$")
                 else:
-                    print("No Arbitrage Possibility")
+                    print("No Arbitrage Possibility -- %%%%%%")
                     # Format data(list) into List format (List of lists)
                 list_exchange_rate_list.append(exch_rate_list)
+
             print(list_exchange_rate_list)
             # Create lists from Lists for matplotlib format
             rateA = []
@@ -128,8 +123,8 @@ def arbitrage(cycle_number=10, cycle_time=20):
             fig, ax = plt.subplots()
             plt.plot(rateA, time_list, color='red', label='{}'.format(arb_list[0]))
             plt.plot(rateB, time_list, color='green', label='{} / {}'.format(arb_list[1], arb_list[2]))
-            # Show our graph - with labels
-            ax.set(xlabel='Date', ylabel='Exchange Rate', title='Exchange: {}'.format(exch.id))
+            # Show graph - with lbls
+            ax.set(xlabel='Date', ylabel='Exchange Rate', title='Exchange: {}'.format(exch)) # id ?
             plt.legend()
             plt.show()
 
