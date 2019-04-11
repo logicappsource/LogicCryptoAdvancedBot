@@ -45,7 +45,6 @@ def arbitrage():
             print(exch1.symbols) # List all currencies
             time.sleep(5)
 
-
             # Find Currencies Trading pairs to Trade
             pairs = []
             for sym in symbols:
@@ -63,9 +62,13 @@ def arbitrage():
                 for sym in symbols:
                     if j % 2 == 0:
                         if arb_list[j][0:3] == sym[0:3]: # Comparing top pairs of currencies based on positions
-                            arb_list.append(sym)
-                            j+=1
-                            break
+                            if arb_list[j] == sym: # Comparing bottom pairs
+                                pass
+                            else:
+                                arb_list.append(sym)
+                                print(arb_list)
+                                j+=1
+                                break
                     if j % 2 == 1:
                         if arb_list[j][-3:0] == sym[-3:0]: # back po -> end
                             arb_list.append(sym)
@@ -73,7 +76,8 @@ def arbitrage():
                             break
                 if arb_list[-1][0:3] == arb_list[0][-3:0]: # break out of while loop
                     break
-            print('Arbitrage list : after currency comparsion', arb_list)
+                time.sleep(.5)
+            print('Arbitrage list : after currency rates comparsion', arb_list)
             time.sleep(15)
             # Determine Rates for our 3 currency pairs - order book
             i=0
@@ -81,13 +85,25 @@ def arbitrage():
             for sym in arb_list:
                 if sym in symbols:
                     depth = exch1.fetch_order_book(symbol=sym)
-                    pprint(depth)
+                    #pprint(depth)
                     time.sleep(3)
-                    exch_rate_list.append(depth['bids'][0][0])
+                    if i % 2 == 0:
+                        exch_rate_list.append(depth['bids'][0][0])
+                    else:
+                        exch_rate_list.append(depth['asks'][0][0])
                 else:
                     exch_rate_list.append(0)
             print(exch_rate_list)
-    # Compare to determine if Arbitrage oppertunities exists
+
+        # Compare to determine if Arbitrage oppertunities exists
+            if exch_rate_list[0] < exch_rate_list[1] / exch_rate_list[2]:
+                print("Arbitrage Possibility")
+            else:
+                print("No Arbitrage Possibility")
+        # Create Visualization of Currency Exchange Rate Value - Over time
+            # Determine Cycle Number (When data is taken) and time when taken
+            # Format into list
+            # Visualize into matplot.lib
 
 
 def diversify():
