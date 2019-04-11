@@ -7,8 +7,6 @@ import matplotlib.pyplot as plt
 import random
 from pprint import pprint
 #from Keys import Key1
-#api_key = BinanceKey1['api_key']
-#api_secret = BinanceKey1['api_secret']
 #client = Client(api_key, api_secret)
 #address = client.get_deposit_address(asset='BTC')
 
@@ -26,7 +24,7 @@ def run():
         ActiveTrader()
 
 
-def arbitrage():
+def arbitrage(cycle_number=10, cycle_time=20):
     # Crate Triangular Function
     print("Arbitrage function Running")
     coins = ['BTC', 'LTC', 'ETH'] # Currencies to Arbitrage
@@ -52,13 +50,19 @@ def arbitrage():
                     if symbol in sym:
                         pairs.append(sym)
             print(pairs)
-            # From Coin 1 to Coin 2
-            # From Coin 2 to Coin 3
-            # From Coin 3 Coin 1
+            # From Coin 1 to Coin 2 - ETH/BTC - Bid
+            # From Coin 2 to Coin 3 - ETH/LTC - Ask
+            # From Coin 3 Coin 1 - BTC/LTC - Bid
             arb_list = ['ETH/BTC'] #['ETH/BTC', 'ETH/LTC', 'BTC/LTC']
             # Find 'closed loop' of currency pairs
             j=0
             while 1:
+                if j == 1:
+                            final = arb_list[0][-3:] + '/' + str(arb_list[1][-3:])
+                            print(final)
+                            if final in symbols:
+                                arb_list(final)
+                            break
                 for sym in symbols:
                     if j % 2 == 0:
                         if arb_list[j][0:3] == sym[0:3]: # Comparing top pairs of currencies based on positions
@@ -70,40 +74,64 @@ def arbitrage():
                                 j+=1
                                 break
                     if j % 2 == 1:
-                        if arb_list[j][-3:0] == sym[-3:0]: # back po -> end
-                            arb_list.append(sym)
-                            j+=1
-                            break
-                if arb_list[-1][0:3] == arb_list[0][-3:0]: # break out of while loop
-                    break
-                time.sleep(.5)
-            print('Arbitrage list : after currency rates comparsion', arb_list)
-            time.sleep(15)
+                        if arb_list[j][-3:] == sym[-3:]: # back po -> end
+                            if arb_list[j] == sym:
+                                pass
+                            else:
+                                arb_list.append(sym)
+                                j+=1
+                                break
+                #if arb_list[-1][0:3] == arb_list[0][-3:0]: # break out of while loop
+                    #break
+                #time.sleep(.5)
+            print('Arbitrage list = Symbols = ', arb_list)
+            time.sleep(3)
             # Determine Rates for our 3 currency pairs - order book
             i=0
-            exch_rate_list = []
-            for sym in arb_list:
-                if sym in symbols:
-                    depth = exch1.fetch_order_book(symbol=sym)
-                    #pprint(depth)
-                    time.sleep(3)
-                    if i % 2 == 0:
-                        exch_rate_list.append(depth['bids'][0][0])
+            list_exchange_rate_list = []
+            # Create Visualization of Currency Exchange Rate Value - Over time
+                 # Determine Cycle Number (When data is taken) and time when taken
+            for i in range(0, cycle_number):
+                exch_rate_list = []
+                for sym in arb_list:
+                    if sym in symbols:
+                        depth = exch1.fetch_order_book(symbol=sym)
+                        #pprint(depth)
+                        time.sleep(3)
+                        if i % 2 == 0:
+                            exch_rate_list.append(depth['bids'][0][0])
+                        else:
+                            exch_rate_list.append(depth['asks'][0][0])
                     else:
-                        exch_rate_list.append(depth['asks'][0][0])
-                else:
-                    exch_rate_list.append(0)
-            print(exch_rate_list)
-
+                        exch_rate_list.append(0)
+                        time.sleep(cycle_time)
+                exch_rate_list.append(time.time())
+                print(exch_rate_list)
         # Compare to determine if Arbitrage oppertunities exists
-            if exch_rate_list[0] < exch_rate_list[1] / exch_rate_list[2]:
-                print("Arbitrage Possibility")
-            else:
-                print("No Arbitrage Possibility")
-        # Create Visualization of Currency Exchange Rate Value - Over time
-            # Determine Cycle Number (When data is taken) and time when taken
-            # Format into list
-            # Visualize into matplot.lib
+                print('arbite???????')
+                if exch_rate_list[0] < exch_rate_list[1] / exch_rate_list[2]:
+                    print("Arbitrage Possibility")
+                else:
+                    print("No Arbitrage Possibility")
+                    # Format data(list) into List format (List of lists)
+                list_exchange_rate_list.append(exch_rate_list)
+            print(list_exchange_rate_list)
+            # Create lists from Lists for matplotlib format
+            rateA = []
+            rateB =[]
+            time_list = []
+            for rate in list_exchange_rate_list:
+                rateA.append(rate[0])
+                rateB.append(rate[1] / rate[2])
+                time_list.append(rate[3])
+            # Use Matplotlib to plot data
+            fig, ax = plt.subplots()
+            plt.plot(rateA, time_list, color='red', label='{}'.format(arb_list[0]))
+            plt.plot(rateB, time_list, color='green', label='{} / {}'.format(arb_list[1], arb_list[2]))
+            # Show our graph - with labels
+            ax.set(xlabel='Date', ylabel='Exchange Rate', title='Exchange: {}'.format(exch.id))
+            plt.legend()
+            plt.show()
 
 
 def diversify():
