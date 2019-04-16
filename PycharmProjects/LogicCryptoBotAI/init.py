@@ -125,9 +125,9 @@ def arbitrage(cycle_number=10, cycle_time=4):
             print("Rate A: {} \n Rate B: {} \n Rate C: {} \n".format(rateA, rateB, rateB_fee))
             # Use Matplotlib to plot data
             fig, ax = plt.subplots()
-            plt.plot(rateA, time_list, color='red', label='{}'.format(arb_list[0]))
-            plt.plot(rateB, time_list, color='green', label='{} / {}'.format(arb_list[1], arb_list[2]))
-            plt.plot(time_list, rateB_fee, color='blue', label='{} / {} - with Fee'.format(rateB_fee))
+            plt.plot(time_list, rateA, color='red', label='{}'.format(arb_list[0]))
+            plt.plot(time_list, rateB, color='green', label='{} / {}'.format(arb_list[1], arb_list[2]))
+            plt.plot(time_list, rateB_fee, color='blue', label='{} / {} - with Fee'.format(arb_list[1], arb_list[2]))
             # Show graph - with lbls
             ax.set(xlabel='Date', ylabel='Exchange Rate', title='Exchange: {}'.format(exch)) # id ?
             plt.legend()
