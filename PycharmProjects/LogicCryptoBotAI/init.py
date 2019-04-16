@@ -1,8 +1,8 @@
-#import save_historical_data
 import ccxt
 import time
 import matplotlib.pyplot as plt
 import random
+#import save_historical_data
 from pprint import pprint
 #address = client.get_deposit_address(asset='BTC')
 
@@ -20,9 +20,10 @@ def run():
         ActiveTrader()
 
 
-def arbitrage(cycle_number=25, cycle_time=3):
+def arbitrage(cycle_number=10, cycle_time=4):
     # Crate Triangular Function
     print("Arbitrage function Running")
+    fee_percentage = 0.001
     coins = ['BTC', 'LTC', 'ETH'] # Currencies to Arbitrage
     for exch in ccxt.exchanges:
         exch1 = getattr(ccxt, exch)()
@@ -80,14 +81,15 @@ def arbitrage(cycle_number=25, cycle_time=3):
                                 break
                 #time.sleep(.5)
             print('Arbitrage list = Symbols = ', arb_list)
-            time.sleep(3)
+            #time.sleep(3)
             # Determine Rates for our 3 currency pairs - order book
-            i=0
             list_exchange_rate_list = []
             # Create Visualization of Currency Exchange Rate Value - Over time
                  # Determine Cycle Number (When data is taken) and time when taken
-            for i in range(0, cycle_number):
+            for k in range(0, cycle_number):
+                i = 0
                 exch_rate_list = []
+                print(k)
                 for sym in arb_list:
                     if sym in symbols:
                         depth = exch1.fetch_order_book(symbol=sym)
@@ -102,27 +104,30 @@ def arbitrage(cycle_number=25, cycle_time=3):
                         time.sleep(cycle_time)
                 exch_rate_list.append(time.time()) # configure to human readable time format
                 print(exch_rate_list)
-        # Compare to determine if Arbitrage oppertunities exists
+            # Compare to determine if Arbitrage oppertunities exists
                 if exch_rate_list[0] < exch_rate_list[1] / exch_rate_list[2]:
                     print("Arbitrage Possibility -- $$$$$$$$$$$")
                 else:
                     print("No Arbitrage Possibility -- %%%%%%")
                     # Format data(list) into List format (List of lists)
                 list_exchange_rate_list.append(exch_rate_list)
-
             print(list_exchange_rate_list)
             # Create lists from Lists for matplotlib format
             rateA = []
-            rateB =[]
+            rateB = []
+            rateB_fee = []
             time_list = []
             for rate in list_exchange_rate_list:
                 rateA.append(rate[0])
-                rateB.append(rate[1] / rate[2])
+                rateB.append(rate[1]/rate[2])
+                rateB_fee.append((rate[1]/rate[2])*(1-fee_percentage)*(1-fee_percentage))
                 time_list.append(rate[3])
+            print("Rate A: {} \n Rate B: {} \n Rate C: {} \n".format(rateA, rateB, rateB_fee))
             # Use Matplotlib to plot data
             fig, ax = plt.subplots()
             plt.plot(rateA, time_list, color='red', label='{}'.format(arb_list[0]))
             plt.plot(rateB, time_list, color='green', label='{} / {}'.format(arb_list[1], arb_list[2]))
+            plt.plot(time_list, rateB_fee, color='blue', label='{} / {} - with Fee'.format(rateB_fee))
             # Show graph - with lbls
             ax.set(xlabel='Date', ylabel='Exchange Rate', title='Exchange: {}'.format(exch)) # id ?
             plt.legend()
